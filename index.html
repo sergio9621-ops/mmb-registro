@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validación - Porvenir MMB 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange:#F4700A; --orange2:#F9A33C; --green-mmb:#7ecf2e;
+      --card-bg:rgba(255,255,255,0.93); --card-border:rgba(255,255,255,0.65);
+      --text-dark:#1a1a2e; --text-muted:#7a7a9a;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      height:100vh; font-family:'Barlow',sans-serif;
+      display:flex; align-items:center; justify-content:center;
+      position:relative; overflow:hidden; background:#5B9DD8;
+    }
+    #sky-layer { position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+    .sun-glow {
+      position:absolute; top:8%; right:18%; width:260px; height:260px; border-radius:50%;
+      background:radial-gradient(circle, rgba(255,240,180,0.45) 0%, rgba(255,200,80,0.18) 45%, transparent 70%);
+      z-index:1; pointer-events:none; animation:sunPulse 8s ease-in-out infinite;
+    }
+    @keyframes sunPulse { 0%,100%{opacity:.8;transform:scale(1)} 50%{opacity:1;transform:scale(1.06)} }
+    #clouds { position:absolute; top:0; left:0; width:100%; height:50%; z-index:1; pointer-events:none; overflow:hidden; }
+    .cloud { position:absolute; animation:cloudDrift linear infinite; }
+    @keyframes cloudDrift { from{transform:translateX(0)} to{transform:translateX(60px)} }
+    #scene-bg { position:absolute; bottom:0; left:0; width:100%; height:68%; z-index:2; pointer-events:none; }
+    #runners { position:absolute; bottom:0; left:0; width:100%; height:88px; z-index:5; pointer-events:none; overflow:hidden; }
+    .runner { position:absolute; bottom:3px; animation:runAcross linear infinite; opacity:.92; }
+    .runner:nth-child(1){animation-duration:13s;animation-delay:0s;}
+    .runner:nth-child(2){animation-duration:18s;animation-delay:-7s;bottom:7px;}
+    @keyframes runAcross { from{left:-100px} to{left:calc(100% + 100px)} }
+    .ground-line {
+      position:absolute; bottom:0; left:0; width:100%; height:2px;
+      background:linear-gradient(90deg,transparent,var(--orange2),#fff,var(--orange2),transparent);
+      z-index:6; animation:linePulse 4s ease-in-out infinite;
+    }
+    @keyframes linePulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+    .logos-header {
+      position:absolute; top:26px; left:0; width:100%;
+      display:flex; justify-content:space-between; padding:0 6%; z-index:20;
+    }
+    .logo-container {
+      background:rgba(255,255,255,0.92); backdrop-filter:blur(10px);
+      padding:9px 20px; border-radius:12px; border:1px solid rgba(255,255,255,0.7);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .logo-container img { height:46px; width:auto; max-width:150px; object-fit:contain; }
+    .distance-badge {
+      position:absolute; top:24px; left:50%; transform:translateX(-50%);
+      z-index:20; display:flex; flex-direction:column; align-items:center; gap:4px; white-space:nowrap;
+    }
+    .distances { display:flex; align-items:center; gap:7px; }
+    .km-pill {
+      font-family:'Barlow Condensed',sans-serif; font-size:1.5rem; font-weight:900;
+      line-height:1; letter-spacing:-0.5px; padding:4px 13px; border-radius:8px;
+    }
+    .km-pill.main { background:var(--orange); color:#fff; }
+    .km-pill.second { background:rgba(255,255,255,0.92); color:var(--orange); border:1.5px solid var(--orange); }
+    .dist-sep { font-family:'Barlow Condensed',sans-serif; font-size:1.1rem; font-weight:700; color:rgba(255,255,255,.9); }
+    .dist-sub-wrap {
+      background:rgba(15,40,90,0.72); backdrop-filter:blur(6px);
+      border:1px solid rgba(255,255,255,0.25); border-radius:20px; padding:3px 14px;
+    }
+    .dist-sub { font-family:'Barlow Condensed',sans-serif; font-size:.72rem; font-weight:800; letter-spacing:3.5px; text-transform:uppercase; color:#ffffff; display:block; }
+    .card-container {
+      background:var(--card-bg); backdrop-filter:blur(18px);
+      width:90%; max-width:440px; padding:2.6rem 2.4rem; border-radius:22px;
+      border:1.5px solid var(--card-border); border-top:4px solid var(--orange);
+      text-align:center; position:relative; z-index:20;
+      box-shadow:0 20px 60px rgba(20,60,120,.3), 0 0 0 1px rgba(255,255,255,.25);
+    }
+    .event-tag {
+      display:inline-block; font-family:'Barlow Condensed',sans-serif; font-size:.68rem; font-weight:700;
+      letter-spacing:3px; text-transform:uppercase; color:var(--orange);
+      background:rgba(244,112,10,.1); border:1px solid rgba(244,112,10,.35);
+      padding:4px 14px; border-radius:20px; margin-bottom:12px;
+    }
+    h2 { font-family:'Barlow Condensed',sans-serif; color:var(--text-dark); font-size:2.1rem; font-weight:900; text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; line-height:1; }
+    h2 span { color:var(--orange); }
+    p.subtitle { color:var(--text-muted); font-size:.88rem; line-height:1.5; margin-bottom:26px; font-weight:400; }
+    input#codigo {
+      width:100%; height:54px; background:#f4f4f8; border:1.5px solid #dde0ee; border-radius:10px;
+      font-family:'Barlow Condensed',sans-serif; font-size:1.25rem; font-weight:700;
+      text-align:center; color:var(--text-dark); letter-spacing:2px; margin-bottom:14px;
+      transition:all .25s; outline:none;
+    }
+    input#codigo::placeholder { color:#bbbbd0; letter-spacing:1px; font-weight:400; }
+    input#codigo:focus { border-color:var(--orange); background:#fff; box-shadow:0 0 0 3px rgba(244,112,10,.15); }
+    .btn-action {
+      background:var(--orange); color:#fff; border:none; width:100%; height:54px; border-radius:10px;
+      font-family:'Barlow Condensed',sans-serif; font-size:1.1rem; font-weight:800;
+      letter-spacing:2px; text-transform:uppercase; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      text-decoration:none; transition:all .2s;
+    }
+    .btn-action:hover { background:#d45f00; transform:translateY(-1px); box-shadow:0 8px 22px rgba(244,112,10,.45); }
+    .btn-success { background:var(--green-mmb); }
+    .btn-success:hover { background:#68b523; }
+    .loader {
+      width:42px; height:42px; border:3px solid rgba(27,47,94,.1); border-top:3px solid var(--orange);
+      border-radius:50%; animation:spin .9s linear infinite; margin:0 auto 16px;
+    }
+    @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+    .feedback-msg { margin-top:14px; font-size:.95rem; font-weight:600; min-height:22px; }
+    .text-error { color:#d32f2f; font-size:.85rem !important; }
+    .text-success {
+      font-family:'Barlow Condensed',sans-serif; color:#3a8a00; font-size:1.55rem !important;
+      font-weight:900; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;
+    }
+    #fase-espera p { color:var(--text-muted); font-size:.9rem; font-weight:500; }
+    .year-mark {
+      position:absolute; bottom:14px; right:18px; font-family:'Barlow Condensed',sans-serif;
+      font-size:.62rem; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,.35);
+      text-transform:uppercase; z-index:20;
+    }
+    @media (max-width:600px) {
+      .logos-header { top:14px; padding:0 4%; }
+      .logo-container { padding:6px 12px; }
+      .logo-container img { height:34px; max-width:100px; }
+      .distance-badge { top:16px; }
+      .km-pill { font-size:1.15rem; padding:3px 10px; }
+      .card-container { padding:2rem 1.4rem; }
+      h2 { font-size:1.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<svg id="sky-layer" viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="skyDay" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1E6BB8"/>
+      <stop offset="40%" stop-color="#4A9FD8"/>
+      <stop offset="75%" stop-color="#78C4E8"/>
+      <stop offset="100%" stop-color="#A8D8F0"/>
+    </linearGradient>
+    <radialGradient id="sunHalo" cx="80%" cy="12%" r="22%">
+      <stop offset="0%" stop-color="#FFF5C0" stop-opacity=".7"/>
+      <stop offset="40%" stop-color="#FFE066" stop-opacity=".25"/>
+      <stop offset="100%" stop-color="#4A9FD8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1440" height="900" fill="url(#skyDay)"/>
+  <rect width="1440" height="900" fill="url(#sunHalo)"/>
+  <circle cx="1152" cy="108" r="46" fill="#FFF8C0" opacity=".88"/>
+  <circle cx="1152" cy="108" r="32" fill="#FFFDE0" opacity=".95"/>
+</svg>
+
+<div class="sun-glow"></div>
+
+<div id="clouds">
+  <svg style="position:absolute;top:6%;left:3%;opacity:.82;animation:cloudDrift 120s linear infinite;" width="280" height="70" viewBox="0 0 280 70">
+    <ellipse cx="140" cy="45" rx="130" ry="28" fill="white"/>
+    <ellipse cx="90" cy="35" rx="70" ry="32" fill="white"/>
+    <ellipse cx="180" cy="32" rx="80" ry="35" fill="white"/>
+  </svg>
+  <svg style="position:absolute;top:3%;left:55%;opacity:.75;animation:cloudDrift 95s linear infinite;" width="220" height="56" viewBox="0 0 220 56">
+    <ellipse cx="110" cy="38" rx="100" ry="22" fill="white"/>
+    <ellipse cx="70" cy="28" rx="58" ry="26" fill="white"/>
+    <ellipse cx="155" cy="26" rx="65" ry="28" fill="white"/>
+  </svg>
+</div>
+
+<svg id="scene-bg" viewBox="0 0 1440 580" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+  <defs>
+    <linearGradient id="grassMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8DC85A"/>
+      <stop offset="100%" stop-color="#5E9A38"/>
+    </linearGradient>
+    <linearGradient id="grassFG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4E8A2C"/>
+      <stop offset="100%" stop-color="#336018"/>
+    </linearGradient>
+    <linearGradient id="lakeCol" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6AAED8" stop-opacity=".88"/>
+      <stop offset="100%" stop-color="#4080B0" stop-opacity=".8"/>
+    </linearGradient>
+    <linearGradient id="pathCol" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C8A870"/>
+      <stop offset="100%" stop-color="#A88050"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="328" width="1440" height="252" fill="url(#grassMid)"/>
+  <ellipse cx="370" cy="378" rx="308" ry="68" fill="url(#lakeCol)"/>
+  <path d="M0,422 Q360,410 720,418 Q1080,426 1440,414 L1440,440 Q1080,452 720,444 Q360,436 0,448 Z" fill="url(#pathCol)" opacity=".8"/>
+  <line x1="0" y1="431" x2="1440" y2="431" stroke="rgba(255,255,255,.4)" stroke-width="1.3" stroke-dasharray="30,16"/>
+  <rect x="0" y="452" width="1440" height="128" fill="url(#grassFG)"/>
+</svg>
+
+<div id="runners">
+  <svg class="runner" width="58" height="76" viewBox="0 0 60 80" fill="none">
+    <circle cx="30" cy="9" r="7" fill="#F4700A"/>
+    <line x1="30" y1="16" x2="30" y2="44" stroke="#F4700A" stroke-width="3.5"/>
+    <line x1="30" y1="24" x2="13" y2="37" stroke="#F4700A" stroke-width="3"/>
+    <line x1="30" y1="24" x2="47" y2="31" stroke="#F4700A" stroke-width="3"/>
+    <line x1="30" y1="44" x2="15" y2="66" stroke="#F4700A" stroke-width="3.5"/>
+    <line x1="30" y1="44" x2="45" y2="64" stroke="#F4700A" stroke-width="3.5"/>
+  </svg>
+  <svg class="runner" width="50" height="66" viewBox="0 0 60 80" fill="none" style="opacity:.78;">
+    <circle cx="30" cy="9" r="7" fill="#1B4A8A"/>
+    <line x1="30" y1="16" x2="30" y2="44" stroke="#1B4A8A" stroke-width="3.5"/>
+    <line x1="30" y1="24" x2="14" y2="36" stroke="#1B4A8A" stroke-width="3"/>
+    <line x1="30" y1="24" x2="46" y2="30" stroke="#1B4A8A" stroke-width="3"/>
+    <line x1="30" y1="44" x2="16" y2="65" stroke="#1B4A8A" stroke-width="3.5"/>
+    <line x1="30" y1="44" x2="44" y2="63" stroke="#1B4A8A" stroke-width="3.5"/>
+  </svg>
+</div>
+
+<div class="ground-line"></div>
+
+<div class="logos-header">
+  <div class="logo-container">
+    <img src="https://i.postimg.cc/Wp8XrTT5/Logo-mm-B.png" alt="Logo MMB 2026">
+  </div>
+  <div class="logo-container">
+    <img src="https://i.postimg.cc/1tZJ0zgx/Logo-Porvenir.png" alt="Logo Porvenir">
+  </div>
+</div>
+
+<div class="distance-badge">
+  <div class="distances">
+    <span class="km-pill main">21K</span>
+    <span class="dist-sep">·</span>
+    <span class="km-pill second">10K</span>
+  </div>
+  <div class="dist-sub-wrap">
+    <span class="dist-sub">MMB Bogotá 2026</span>
+  </div>
+</div>
+
+<div class="card-container">
+  <div class="event-tag">Media Maratón de Bogotá</div>
+  <h2>Registro <span>Oficial</span></h2>
+  <p class="subtitle">Validación de códigos MMB 2026<br>Ingresa tu código para continuar</p>
+
+  <div id="fase-entrada">
+    <input type="text" id="codigo" placeholder="PORVENIR_BOG..." maxlength="30">
+    <button onclick="validarAtleta()" class="btn-action">Validar Código</button>
+    <div id="mensaje-error" class="feedback-msg text-error"></div>
+  </div>
+
+  <div id="fase-espera" style="display:none; padding:1rem 0;">
+    <div class="loader"></div>
+    <p>Verificando en la base oficial...</p>
+  </div>
+
+  <div id="fase-exito" style="display:none;">
+    <p class="feedback-msg text-success">¡Código aprobado!</p>
+    <a id="btn-link-final" href="#" class="btn-action btn-success">Ir al Formulario</a>
+  </div>
+</div>
+
+<div class="year-mark">MMB · Parque Simón Bolívar · Bogotá · 2026</div>
+
+<script>
+  // ← REEMPLAZA CON TU URL DE APPS SCRIPT
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynreaK23vzSVpxaiq0WnCluDaw76eQ_VM5WcXvhG2VPClM9cgUgrzERmXtlRBb7wjdLQ/exec";
+
+  function validarAtleta() {
+    const cod = document.getElementById('codigo').value.trim();
+    const errorDiv = document.getElementById('mensaje-error');
+    if (!cod) { errorDiv.innerText = "Por favor, ingresa tu código."; return; }
+
+    errorDiv.innerText = "";
+    document.getElementById('fase-entrada').style.display = "none";
+    document.getElementById('fase-espera').style.display = "block";
+
+    fetch(APPS_SCRIPT_URL + "?action=validar&codigo=" + encodeURIComponent(cod))
+      .then(r => r.json())
+      .then(res => {
+        document.getElementById('fase-espera').style.display = "none";
+        if (res.success) {
+          document.getElementById('fase-exito').style.display = "block";
+          document.getElementById('btn-link-final').onclick = function(e) {
+            e.preventDefault();
+            window.location.href = res.url;
+          };
+        } else {
+          document.getElementById('fase-entrada').style.display = "block";
+          errorDiv.innerText = res.mensaje;
+        }
+      })
+      .catch(() => {
+        document.getElementById('fase-espera').style.display = "none";
+        document.getElementById('fase-entrada').style.display = "block";
+        errorDiv.innerText = "Error de red. Revisa tu conexión.";
+      });
+  }
+</script>
+</body>
+</html>
